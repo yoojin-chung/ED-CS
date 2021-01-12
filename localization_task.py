@@ -1,14 +1,5 @@
 """Read and plot localization task performance."""
 
-# Stuff to fix
-# output tar, nvis, ... - use append, organize in DataFrame
-# run binomial test
-# Plot results
-
-# Add date in the database
-# Add # suc w/o timeout in results
-# Runner - calc P values and add to DF. Plot, save by animal
-
 
 import pandas as pd
 import numpy as np
