@@ -10,11 +10,8 @@ Created on Mon Sep 28 17:25:05 2020
 import pandas as pd
 import numpy as np
 import seaborn as sns
-import statsmodels.api as sm
 import pickle
 from scipy.io import loadmat
-from statsmodels.formula.api import ols
-from scipy.stats import kendalltau
 from matplotlib import pyplot as plt
 
 # %% Load data and plot STVR
