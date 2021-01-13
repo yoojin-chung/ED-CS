@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Read in Matlab process data from ED-CS study and plot STVRs, SGN and analyze.
+Read Matlab data from ED-CS study and resave in Pandas dataframe.
+Select a unit closest to the mean response curve to show.
 
 Created on Mon Sep 28 17:25:05 2020
 @author: yooji
@@ -60,7 +61,7 @@ DF['pval'] = DF_pval.pval
 # plt.figure()
 # ax1 = sns.boxplot(x="pps", y="stvr", hue="group", data=DF, palette="Set2")
 
-# %% Find examples closest to mean or median
+# %% Find examples closest to mean
 DF.pps = DF['pps'].astype('float')
 DF.stvr = DF['stvr'].astype('float')
 
