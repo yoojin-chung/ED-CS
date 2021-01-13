@@ -72,89 +72,18 @@ ax2.set_xscale('log')
 groups = DF.group.unique()
 pps_set = DF.pps.unique()
 
-# stvr_mean = []
-# for j, group in enumerate(groups):
-#     stvr_pps = []
-#     for k, pps in enumerate(pps_set):
-#         stvr_pps.append(np.mean(DF[(DF.group==group) & (DF.pps==pps)].stvr))
-#     stvr_mean.append(stvr_pps)
 stvr_mean = DF['stvr'].groupby([DF['group'], DF['pps']]).mean()
 xx = np.array(DF_raw[DF_raw.group == 'ED-CS'].stvr)
 
 diff = []
-for k, x in enumerate(xx):
+for x in xx:
     # diff.append(np.sum((xx[k]-stvr_mean[:][1])**2))
-    diff.append(np.sum((xx[k]-stvr_mean['ED-CS'])**2))
+    diff.append(np.sum((x-stvr_mean['ED-CS'])**2))
 
 diff = np.array(diff)
 ind = np.argmin(diff)
 uni_list = DF_raw[DF_raw.group == 'ED-CS'].unit
 print(uni_list.iloc[ind])
-
-# %% Two-way anova analysis of STVR
-# Set types for anova
-DF.group = DF['group'].astype('category')
-DF.pps = DF['pps'].astype('category')
-DF.stvr = DF['stvr'].astype('float')
-
-# Arcsine transform to make the data more Gaussian-like
-DF['stvr_tr'] = np.arcsin(np.sqrt(DF.stvr))
-
-# Sum is the jiggery pokery needed for 2-way anova with interaction
-model = ols('stvr_tr ~ C(group, Sum) * C(pps, Sum)', data=DF).fit()
-tbl = sm.stats.anova_lm(model, typ=3)
-print('Two-way ANOVA with interaction')
-print(tbl)
-
-# Interaciton is not significant so we remove it for EF calculation
-model = ols('stvr_tr ~ C(group) + C(pps)', data=DF).fit()
-tbl = sm.stats.anova_lm(model, typ=2)
-print('\nTwo-way ANOVA no interaction')
-print(tbl)
-
-# Add effect size here
-part_omega = tbl.df['C(group)']*(tbl.sum_sq['C(group)']/tbl.df['C(group)']-
-                                 tbl.sum_sq['Residual']/tbl.df['Residual'])/\
-             (tbl.sum_sq['C(group)'] + (sum(tbl.df) + 1 - tbl.df['C(group)'])*
-             tbl.sum_sq['Residual']/tbl.df['Residual'])
-print('\nPartial omega squared for group: %0.5f' % part_omega)
-
-part_omega = tbl.df['C(pps)']*(tbl.sum_sq['C(pps)']/tbl.df['C(pps)']-
-                                 tbl.sum_sq['Residual']/tbl.df['Residual'])/\
-             (tbl.sum_sq['C(pps)'] + (sum(tbl.df) + 1 - tbl.df['C(pps)'])*
-             tbl.sum_sq['Residual']/tbl.df['Residual'])
-print('\nPartial omega squared for pps: %0.5f' % part_omega)
-
-
-# %% SGN
-# Plot SGN count as function of duration of deafness
-plt.figure()
-ax3 = sns.scatterplot(data=DF_sgn, x="dur_deafness", y="SGN", hue="group")
-
-# Test if there is a correlation between SGN and STVR
-# Select best STVR per unit
-
-# Use groupby!
-# units = DF[~DF.SGN.isnull()].unit.unique()
-# stvr_unit = []
-# for k, unit in enumerate(units):
-#     if (unit[0] != 'I'):
-#         a = max(DF[DF.unit == units[k]].stvr)
-#         b = unit
-#         c = DF[DF.unit == units[k]].SGN.unique()
-#         d = DF[DF.unit == units[k]].animal.unique()
-#         e = DF[DF.unit == units[k]].group.unique()
-#         stvr_unit.append([a, b, c[0], d[0], e[0]])
-# DF_unit = pd.DataFrame(stvr_unit, columns=['stvr', 'unit', 'SGN', 'animal', 'group'])
-
-DF_unit = DF[DF.group == 'ED-CS'].groupby(['animal', 'unit']).max()
-tau, p_value = kendalltau(DF_unit.SGN, DF_unit.stvr)
-plt.figure()
-ax4 = sns.scatterplot(data=DF_unit, x="SGN", y="stvr", hue="animal")
-
-print('Correlation between SGN and ITD stvr within ED-CS group')
-print('Kendall\'s tau: %0.4f' % tau)
-print('P value: %0.4f' % p_value)
 
 
 # %%
